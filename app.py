@@ -2,38 +2,44 @@ import hmac
 import hashlib
 import os
 from flask import Flask, jsonify, request, abort
-from datadog import initialize, api, statsd
+from datadog import initialize, statsd
 
 # get keys from enfironment variables
-SEGMENT_SHARED_SECRET = os.environ['SEGMENT_SHARED_SECRET']
-DATADOG_API_KEY = os.environ['DD_API_KEY']
-DATADOG_APP_KEY = os.environ['DD_APP_KEY']
+SEGMENT_SHARED_SECRET = os.environ["SEGMENT_SHARED_SECRET"]
 
 # initialize datadog
-options = {
-    'api_key': DATADOG_API_KEY,
-    'app_key': DATADOG_APP_KEY
-}
+options = {"statsd_host": os.environ.get("DATADOG_STATSD_HOST", "127.0.0.1")}
 
 initialize(**options)
 
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def index():
     return "Segment2Datadog is up and running!"
 
-@app.route('/api/<string:source>', methods=['POST'])
+
+@app.route("/api/<string:source>", methods=["POST"])
 def segment2datadog(source):
     # check signature
-    signature = request.headers['x-signature']
-    digest = hmac.new(SEGMENT_SHARED_SECRET.encode(), msg=request.data, digestmod=hashlib.sha1).hexdigest()
+    signature = request.headers["x-signature"]
+    digest = hmac.new(
+        SEGMENT_SHARED_SECRET.encode(), msg=request.data, digestmod=hashlib.sha1
+    ).hexdigest()
     if digest != signature:
-        abort(403, 'Signature not valid.')
+        abort(403, "Signature not valid.")
     if not source:
-        abort(404, 'Source parameter not present.')
+        abort(404, "Source parameter not present.")
     content = request.get_json(silent=True)
     # increment event counter in datadog
-    if content['type'] == 'track':
-        statsd.increment('segment.event', tags = ['source:' + source, 'event:' + '-'.join(content['event'].split()), 'type:' + content['type']])
-    return jsonify({'source': source, 'data': content})
+    if content["type"] == "track":
+        statsd.increment(
+            "segment.event",
+            tags=[
+                "source:" + source,
+                "event:" + "-".join(content["event"].split()),
+                "type:" + content["type"],
+            ],
+        )
+    return jsonify({"source": source, "data": content})

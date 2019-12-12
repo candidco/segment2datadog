@@ -1,0 +1,22 @@
+name: Code Quality
+
+on: [push]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+
+      - name: Install Dependencies
+        run: pip install black==18.9b0
+
+      - name: Code Quality
+        run: black . --check
