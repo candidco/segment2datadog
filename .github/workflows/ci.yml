@@ -28,7 +28,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          ECR_REPOSITORY: internal-services/segment-forwarder
+          ECR_REPOSITORY: external-services/segment-forwarder
           IMAGE_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
