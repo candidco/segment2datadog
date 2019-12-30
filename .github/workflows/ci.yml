@@ -27,11 +27,12 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         env:
+          GIT_SHA: ${{ github.sha }}
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           ECR_REPOSITORY: external-services/segment-forwarder
           IMAGE_TAG: latest
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build --build-arg GIT_SHA=$GIT_SHA -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Logout of Amazon ECR

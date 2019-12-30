@@ -4,7 +4,8 @@ import os
 from flask import Flask, jsonify, request, abort
 from datadog import initialize, statsd
 
-# get keys from enfironment variables
+# get keys from environment variables
+GIT_SHA = os.environ.get("GIT_SHA")
 SEGMENT_SHARED_SECRET = os.environ["SEGMENT_SHARED_SECRET"]
 
 # initialize datadog
@@ -17,8 +18,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    print("Received request on /")
-    return "Segment2Datadog is up and running!"
+    print(f"Received request on /\n{GIT_SHA}")
+    return f"Segment2Datadog is up and running! {GIT_SHA}"
 
 
 @app.route("/api/<string:source>", methods=["POST"])
