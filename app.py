@@ -17,18 +17,25 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
+    print("Received request on /")
     return "Segment2Datadog is up and running!"
 
 
 @app.route("/api/<string:source>", methods=["POST"])
 def segment2datadog(source):
     # check signature
-    signature = request.headers["x-signature"]
-    digest = hmac.new(
-        SEGMENT_SHARED_SECRET.encode(), msg=request.data, digestmod=hashlib.sha1
-    ).hexdigest()
-    if digest != signature:
-        abort(403, "Signature not valid.")
+    print(f"Received request on /api/{source}")
+
+    try:
+        signature = request.headers["x-signature"]
+        digest = hmac.new(
+            SEGMENT_SHARED_SECRET.encode(), msg=request.data, digestmod=hashlib.sha1
+        ).hexdigest()
+        if digest != signature:
+            print(f"Invalid signature. Expected {digest} but got {signature}")
+            abort(403, "Signature not valid.")
+    except KeyError:
+        pass
     if not source:
         abort(404, "Source parameter not present.")
     content = request.get_json(silent=True)
