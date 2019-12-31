@@ -1,4 +1,6 @@
 FROM python:3.6
+ARG GIT_SHA
+ENV GIT_SHA=$GIT_SHA
 ADD . /opt/app
 WORKDIR /opt/app
 RUN pip install -r requirements.txt
