@@ -64,7 +64,7 @@ def segment2datadog(source):
     """Main function. Accepts JSON payload on POST only."""
     print(f"Received request on /api/{source}")
 
-    signature = request.headers["x-signature"]
+    signature = request.headers.get("x-signature", "")
 
     if not check_signature(signature=signature, data=request.data):
         abort(403, "Signature not valid.")
