@@ -70,9 +70,12 @@ def segment2datadog(source):
         abort(403, "Signature not valid.")
 
     content = request.get_json()
-    event = content["event"]
     event_type = content["type"]
 
+    if event_type not in ALLOWED_EVENTS:
+        return jsonify({"source": source, "data": content})
+
+    event = content["event"]
     emit(source=source, event=event, event_type=event_type)
 
     return jsonify({"source": source, "data": content})
